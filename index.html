@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff6f2">
+  <title>Csak neked · Egy kis szeretet</title>
+  <style>
+    :root {
+      --paper: #fff9f5; --ink: #590d22; --muted: #926e75; --pink: #ff4d6d;
+      --border: #eddcd9; --rose: #fff0f3; --radius: 28px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: ui-rounded, "Segoe UI", sans-serif; font-size: 15px; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; cursor: pointer; }
+    button:disabled { cursor: wait; opacity: .65; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #b74368; outline-offset: 5px; }
+    button, a { touch-action: manipulation; }
+    .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .svg-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .shell { width: min(1100px, calc(100% - 64px)); margin: auto; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 30px 0; border-bottom: 1px solid var(--border); }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.5px; font-size: 19px; }
+    .brand-mark { background: #f9dce2; color: #bd4b65; border-radius: 12px; width: 36px; height: 36px; display: grid; place-items: center; }
+    .header-note { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 8px; }
+    .header-note .icon { width: 15px; height: 15px; }
+    .intro { position: relative; text-align: center; padding: 51px 0 38px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #a46476; font-weight: 650; }
+    .eyebrow .icon { width: 13px; height: 13px; }
+    h1, h2, .coupon-title, blockquote { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+    h1 { font-size: clamp(42px, 5vw, 64px); letter-spacing: -2.6px; line-height: 1.08; margin: 17px 0 18px; }
+    h1 em { color: #c7657e; font-weight: 400; }
+    .intro p { color: var(--muted); line-height: 1.7; margin: 0; }
+    .intro-spark { position: absolute; color: #ce9a79; width: 28px; height: 28px; transform: rotate(12deg); left: 20%; top: 90px; }
+    .intro-spark.right { left: auto; right: 20%; top: 148px; width: 17px; }
+    .grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 20px; }
+    .card { border: 1px solid #ead9d7; border-radius: var(--radius); padding: 27px; overflow: hidden; position: relative; box-shadow: 0 5px 20px #590d2204; }
+    .card-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .label { font-size: 10px; font-weight: 650; letter-spacing: 1.8px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+    .label .icon { width: 15px; height: 15px; }
+    .pill { border: 1px solid #e9cbd1; border-radius: 30px; padding: 5px 9px; font-size: 9px; color: #ac6f7e; white-space: nowrap; }
+    .heart-card { background: radial-gradient(ellipse at 50% 50%, #ffe0e7, #fff0f3 70%); text-align: center; display: flex; flex-direction: column; }
+    .heart-card .card-top { text-align: left; }
+    .heart-stage { width: 100%; height: 214px; position: relative; border: 0; padding: 0; background: transparent; border-radius: 18px; margin: 7px 0 0; }
+    .heart-stage canvas { width: 100%; height: 100%; display: block; pointer-events: none; }
+    .heart-stage::after { content: "koppints a szívre"; position: absolute; left: 0; right: 0; bottom: 2px; font-size: 10px; color: #b47c89; letter-spacing: .4px; }
+    .heart-card h2 { font-size: 29px; letter-spacing: -.8px; margin: 15px 0 6px; }
+    .heart-card p { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+    .coupon-card { background: #fbf2e8; }
+    .coupon-card .label { color: #997354; }
+    .coupon-card .pill { color: #a98463; border-color: #e4d2bd; }
+    .ticket-scene { perspective: 1000px; margin: 24px 0 20px; }
+    .ticket { background: #fffdf8; border: 1px solid #ead9c6; border-radius: 15px; min-height: 183px; padding: 21px 27px 0; position: relative; text-align: center; transition: transform .24s ease, opacity .24s ease; box-shadow: 0 5px 10px #9a6b3810; }
+    .ticket.flipping { transform: rotateY(90deg); opacity: 0; }
+    .ticket::before, .ticket::after { content: ""; width: 20px; height: 20px; border: 1px solid #ead9c6; border-radius: 50%; background: #fbf2e8; position: absolute; bottom: 33px; }
+    .ticket::before { left: -11px; }
+    .ticket::after { right: -11px; }
+    .ticket-icon { color: #bd956a; width: 29px; height: 29px; }
+    .coupon-title { font-size: 27px; letter-spacing: -.7px; line-height: 1.2; margin: 8px 0; }
+    .coupon-description { font-size: 11px; line-height: 1.5; color: #a0846a; min-height: 17px; margin: 0 0 15px; }
+    .ticket-footer { border-top: 1px dashed #e3d1bd; display: flex; justify-content: space-between; padding: 12px 0; font-size: 8px; letter-spacing: 1.6px; text-transform: uppercase; color: #aa8c70; }
+    .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .btn { border: 0; border-radius: 12px; padding: 12px 19px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 600; transition: transform .2s, background .2s; }
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn .icon { width: 16px; height: 16px; }
+    .btn-primary { background: var(--ink); color: #fff8f6; }
+    .btn-primary:hover { background: #7b2038; }
+    .btn-light { background: #f2e6d7; color: #8d6c50; }
+    .storage-note { color: #93422d; font-size: 11px; line-height: 1.5; margin: 12px 0 0; }
+    .letter-card { background: #fffdfa; min-height: 292px; }
+    h2 { margin: 17px 0 8px; font-size: 29px; letter-spacing: -.8px; }
+    .subtitle { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0; }
+    .letter-preview { display: flex; align-items: center; gap: 24px; margin-top: 20px; }
+    .envelope-button { background: transparent; border: 0; padding: 7px; width: 137px; flex-shrink: 0; transition: transform .25s; }
+    .envelope-button:hover { transform: rotate(-5deg) translateY(-3px); }
+    .envelope-art { width: 100%; filter: drop-shadow(0 8px 6px #c9869020); }
+    .letter-invite { font-family: Georgia, serif; font-style: italic; font-size: 17px; color: #b17685; line-height: 1.6; }
+    .text-button { padding: 9px 0; background: none; border: 0; color: #9c586c; font-size: 11px; display: inline-flex; align-items: center; gap: 7px; }
+    .text-button .icon { width: 14px; height: 14px; }
+    .letter-body { margin-top: 20px; padding: 20px; background: #fff4f4; border-radius: 16px; border: 1px solid #f1dfe1; }
+    .letter-text { white-space: pre-wrap; font-family: Georgia, serif; font-size: 16px; line-height: 1.8; margin: 0; overflow-wrap: anywhere; }
+    .letter-text.typing::after { content: "▏"; color: #bf7086; animation: blink .8s step-end infinite; }
+    .letter-bottom { display: flex; justify-content: space-between; align-items: end; margin-top: 12px; gap: 12px; }
+    .cat { font-family: monospace; font-size: 12px; line-height: 1.2; color: #b17685; margin: 0; }
+    .compliment-card { background: #eeeaf4; border-color: #ddd5e8; display: flex; flex-direction: column; min-height: 292px; }
+    .compliment-card .label { color: #8b729c; }
+    .compliment-card .pill { color: #9683a6; border-color: #d8cde2; }
+    .quote-area { position: relative; padding: 25px 20px 17px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .quote-mark { font-family: Georgia, serif; color: #c7b7d7; font-size: 65px; line-height: .6; }
+    blockquote { font-size: 25px; letter-spacing: -.5px; line-height: 1.4; margin: 9px 0 12px; color: #6d496e; transition: opacity .18s, transform .18s; }
+    blockquote.changing { opacity: 0; transform: translateY(5px); }
+    .quote-caption { font-size: 9px; color: #9c88ac; letter-spacing: 1.4px; text-transform: uppercase; }
+    .compliment-button { align-self: center; background: #e3daed; color: #705278; margin-top: 6px; }
+    footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; color: #ab8d92; font-size: 10px; padding: 27px 0 30px; }
+    footer span { display: flex; align-items: center; gap: 6px; }
+    footer .icon { width: 12px; height: 12px; color: #ce899b; }
+    .footer-note { font-family: Georgia, serif; font-size: 12px; font-style: italic; }
+    #celebration { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    [hidden] { display: none !important; }
+    @keyframes blink { 50% { opacity: 0; } }
+    @media (min-width: 900px) { .heart-card, .coupon-card { min-height: 365px; } }
+    @media (max-width: 700px) {
+      .shell { width: calc(100% - 32px); }
+      header { padding: 20px 0; }
+      .header-note { font-size: 10px; }
+      .intro { padding: 38px 0 30px; }
+      h1 { letter-spacing: -1.7px; }
+      .intro p { font-size: 13px; padding: 0 13px; }
+      .intro-spark { left: 4%; top: 78px; width: 20px; }
+      .intro-spark.right { right: 5%; top: 129px; }
+      .grid { grid-template-columns: 1fr; gap: 16px; }
+      .card { padding: 23px; }
+      .heart-stage { height: 218px; }
+      .heart-card { padding-bottom: 28px; }
+      .ticket { padding-left: 20px; padding-right: 20px; }
+      footer { flex-direction: column; gap: 9px; text-align: center; }
+    }
+    @media (max-width: 360px) {
+      .header-note { display: none; }
+      .card { padding: 19px; }
+      .label { letter-spacing: 1.1px; }
+      .letter-preview { gap: 10px; }
+      .envelope-button { width: 110px; }
+      .btn { padding: 12px 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4Z"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 5h16v5a2 2 0 0 0 0 4v5H4v-5a2 2 0 0 0 0-4Z"/><path d="M15 5v2m0 3v2m0 3v4"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 6h3c5 0 7 12 12 12h3m-4-4 4 4-4 4M3 18h3c2 0 4-2 5-5m3-5c1-1 2-2 4-2h3m-4-4 4 4-4 4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M4 8h12v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Zm12 1h2a3 3 0 0 1 0 6h-2M7 3v2m4-2v2m4-2v2"/></symbol>
+  </svg>
+  <div class="shell">
+    <header>
+      <div class="brand"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg></span>csak neked<span style="color:#c47d90">.</span></div>
+      <span class="header-note"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>A mi kis titkos helyünk</span>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="welcome">
+        <span class="eyebrow"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>Egy kis meglepetés, sok szeretettel</span>
+        <h1 id="welcome">Egy kis világ,<br><em>csak neked.</em></h1>
+        <p>Mert a legszebb része a napomnak te vagy.<br>Itt mindig vár egy kis szeretet. Nézz körül! ♡</p>
+        <svg class="icon intro-spark" aria-hidden="true"><use href="#i-spark"/></svg>
+        <svg class="icon intro-spark right" aria-hidden="true"><use href="#i-spark"/></svg>
+      </section>
+      <div class="grid">
+        <section class="card heart-card" aria-labelledby="heart-title">
+          <div class="card-top">
+            <span class="label"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg>Egy szív, ami érted dobog</span>
+            <span class="pill">mindig ♡</span>
+          </div>
+          <button class="heart-stage" id="heart-button" aria-label="Küldök egy szívrobbanást">
+            <canvas id="heart-canvas" aria-hidden="true"></canvas>
+          </button>
+          <h2 id="heart-title">Nagyon szeretlek! <span style="color:#dc6884">♡</span></h2>
+          <p>Egy koppintás. Ezer apró szívdobbanás.</p>
+        </section>
+        <section class="card coupon-card" aria-labelledby="coupon-heading">
+          <div class="card-top">
+            <span class="label" id="coupon-heading"><svg class="icon" aria-hidden="true"><use href="#i-ticket"/></svg>A szeretet kuponautomatája</span>
+            <span class="pill">csak neked jár</span>
+          </div>
+          <div class="ticket-scene">
+            <div class="ticket" id="ticket" aria-live="polite" aria-atomic="true">
+              <svg class="icon ticket-icon" aria-hidden="true"><use id="coupon-icon" href="#i-cup"/></svg>
+              <h2 class="coupon-title" id="coupon-title">Reggeli az ágyba</h2>
+              <p class="coupon-description" id="coupon-description">Te csak pihenj. A finomságokat én hozom.</p>
+              <div class="ticket-footer"><span>Egy alkalom · sok szeretet</span><span id="coupon-state">Nincs lejárati idő ♡</span></div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="draw-coupon"><svg class="icon" aria-hidden="true"><use href="#i-shuffle"/></svg>Új kupon húzása</button>
+            <button class="btn btn-light" id="redeem-coupon"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span id="redeem-label">Beváltom!</span></button>
+          </div>
+          <p class="storage-note" id="storage-note" role="status" hidden></p>
+        </section>
+        <section class="card letter-card" aria-labelledby="letter-title">
+          <div class="card-top"><span class="label"><svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>Szavak a szívemből</span><span class="pill">szigorúan titkos</span></div>
+          <h2 id="letter-title">Van egy leveled…</h2>
+          <p class="subtitle">Néhány szó, amit jó, ha mindig tudsz.</p>
+          <div class="letter-preview" id="letter-preview">
+            <button class="envelope-button" id="open-envelope" aria-label="Titkos szerelmes levél kinyitása" aria-controls="letter-body" aria-expanded="false">
+              <svg class="envelope-art" viewBox="0 0 160 120" aria-hidden="true">
+                <g transform="rotate(-8 80 60)">
+                  <rect x="27" y="15" width="106" height="76" rx="5" fill="#fff9f4" stroke="#ebc6cd"/>
+                  <path d="M44 32h48m-48 10h70m-70 10h60" stroke="#e6c4ce" stroke-width="3" stroke-linecap="round"/>
+                  <rect x="12" y="40" width="136" height="72" rx="7" fill="#f7ccd5" stroke="#e8acbc"/>
+                  <path d="m13 42 67 46 67-46" fill="#fbdee5" stroke="#e8acbc"/>
+                  <path d="m14 109 44-37m88 37-44-37" fill="none" stroke="#e8acbc"/>
+                  <circle cx="80" cy="82" r="14" fill="#bc5d78"/>
+                  <path d="M80 90c-16-10-8-19 0-12 8-7 16 2 0 12" fill="#fff0f3"/>
+                </g>
+              </svg>
+            </button>
+            <div><div class="letter-invite">Neked írtam.<br>Nyisd ki bátran!</div><button class="text-button" id="open-letter">Elolvasom<svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+          </div>
+          <div class="letter-body" id="letter-body" hidden>
+            <p class="letter-text" id="letter-text"></p>
+            <div class="letter-bottom">
+              <pre class="cat" aria-label="Egy aranyos cicus"> /\_/\
+( o.o )
+ &gt; ♡ &lt;</pre>
+              <button class="text-button" id="reread-letter"><svg class="icon" aria-hidden="true"><use href="#i-repeat"/></svg>Újraolvasom</button>
+            </div>
+          </div>
+          <span class="sr-only" id="letter-status" role="status"></span>
+        </section>
+        <section class="card compliment-card" aria-labelledby="compliment-heading">
+          <div class="card-top"><span class="label" id="compliment-heading"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>Miért szeretlek?</span><span class="pill">egy kis emlékeztető</span></div>
+          <div class="quote-area">
+            <span class="quote-mark" aria-hidden="true">“</span>
+            <blockquote id="compliment" aria-live="polite" aria-atomic="true">Mert veled a hétköznapokból<br>is kedvenc emlékek lesznek.</blockquote>
+            <span class="quote-caption">És még ezer másik okból</span>
+          </div>
+          <button class="btn compliment-button" id="new-compliment"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>Mondj még valami kedveset</button>
+        </section>
+      </div>
+    </main>
+    <footer><span>Szeretettel készült. Neked. <svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg></span><span class="footer-note">Bárhol is vagy, itt egy kicsit mindig együtt vagyunk.</span></footer>
+  </div>
+  <canvas id="celebration" aria-hidden="true"></canvas>
+  <noscript><p style="text-align:center;padding:20px">Az interaktív meglepetésekhez engedélyezd a JavaScriptet a böngészőben. Nagyon szeretlek! ♡</p></noscript>
+  <script>
+    "use strict";
+
+    // A személyes üzeneteket és kuponokat itt tudod könnyen átírni.
+    const coupons = [
+      { title: "Reggeli az ágyba", description: "Te csak pihenj. A finomságokat én hozom.", icon: "cup" },
+      { title: "Egy jó hosszú hátmasszázs", description: "Ma minden feszültséget elvarázsolok.", icon: "heart" },
+      { title: "A kedvenc vacsid", description: "Én főzök, te csak mesélj a napodról.", icon: "cup" },
+      { title: "Ma te választod a filmet", description: "Vétójog és összebújás. A popcorn is jár.", icon: "ticket" },
+      { title: "Meglepetés édesség", description: "Egy apró finomság a legédesebb embernek.", icon: "spark" },
+      { title: "Egy közös, ráérős séta", description: "Telefonok eltéve, kezek összekulcsolva.", icon: "heart" },
+      { title: "Egy este csak kettőnknek", description: "Semmi rohanás. Csak te, én és a kedvenc zenénk.", icon: "spark" }
+    ];
+    const compliments = [
+      "Mert veled a hétköznapokból is kedvenc emlékek lesznek.",
+      "Mert a mosolyod még a legszürkébb napomat is beragyogja.",
+      "Mert melletted nem kell másnak lennem. Elég, ha önmagam vagyok.",
+      "Mert úgy nevetsz, hogy én is rögtön boldogabb leszek.",
+      "Mert az apró kedvességeid nagy helyet foglalnak el a szívemben.",
+      "Mert az ölelésed az egyik kedvenc helyem a világon.",
+      "Mert veled a csend is meghitt, a kaland pedig még szebb.",
+      "Mert nemcsak szeretlek, hanem nagyon szeretek veled lenni.",
+      "Mert te vagy az első, akinek el akarom mesélni, ha valami jó történik.",
+      "Mert pont ilyen vagy. És nekem ez a legszebb."
+    ];
+    const loveLetter = `Szia, Kedvesem! ♡
+
+Ez a kis világ azért készült, hogy legyen egy hely, ami mindig emlékeztet rá: nagyon szeretlek.
+
+Szeretem a mosolyodat, a közös nevetéseinket, és azokat az apró pillanatokat, amik másnak talán fel sem tűnnek. Nekem ezek teszik igazán széppé a napokat.
+
+Nem kell különleges alkalom ahhoz, hogy ünnepeljelek. Csak szeretném, hogy tudd: jó veled. A hangos, vidám napokon és a csendes, összebújós estéken is.
+
+Ha ma egy kicsit elfáradtál, képzelj ide egy nagy ölelést. Aztán válts be egy kupont — a többit bízd rám. :)
+
+Sok-sok szeretettel,
+Aki ezt mind neked készítette ♡`;
+
+    const $ = (id) => document.getElementById(id);
+    const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+    const storageKey = "csak-neked.coupon.v1";
+    let couponIndex = 0;
+    let redeemed = false;
+    let complimentIndex = 0;
+
+    // Két egymást követő húzás ne adja ugyanazt a meglepetést.
+    function differentIndex(length, previous) {
+      const index = Math.floor(Math.random() * (length - 1));
+      return index >= previous ? index + 1 : index;
+    }
+
+    function reportStorageError(error) {
+      console.warn("A kupon helyi mentése nem érhető el:", error);
+      $("storage-note").textContent = "A böngésző nem tudja menteni a kupont. Itt továbbra is működik minden, de újranyitáskor a kupon nem marad meg.";
+      $("storage-note").hidden = false;
+    }
+
+    function restoreCoupon() {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw === null) return;
+        const saved = JSON.parse(raw);
+        if (!saved || !Number.isInteger(saved.index) || saved.index < 0 ||
+            saved.index >= coupons.length || typeof saved.redeemed !== "boolean") {
+          throw new Error("Érvénytelen mentett kupon.");
+        }
+        couponIndex = saved.index;
+        redeemed = saved.redeemed;
+      } catch (error) {
+        reportStorageError(error);
+      }
+    }
+
+    function saveCoupon() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({ index: couponIndex, redeemed }));
+      } catch (error) {
+        reportStorageError(error);
+      }
+    }
+
+    function renderCoupon() {
+      const coupon = coupons[couponIndex];
+      $("coupon-title").textContent = coupon.title;
+      $("coupon-description").textContent = coupon.description;
+      $("coupon-icon").setAttribute("href", `#i-${coupon.icon}`);
+      $("coupon-state").textContent = redeemed ? "Beváltva! ♡" : "Nincs lejárati idő ♡";
+      $("redeem-label").textContent = redeemed ? "Beváltva!" : "Beváltom!";
+      $("redeem-coupon").disabled = redeemed;
+    }
+
+    $("draw-coupon").addEventListener("click", () => {
+      $("draw-coupon").disabled = true;
+      $("redeem-coupon").disabled = true;
+      $("ticket").classList.add("flipping");
+      setTimeout(() => {
+        couponIndex = differentIndex(coupons.length, couponIndex);
+        redeemed = false;
+        renderCoupon();
+        saveCoupon();
+        $("ticket").classList.remove("flipping");
+        $("draw-coupon").disabled = false;
+      }, motionPreference.matches ? 0 : 240);
+    });
+
+    $("redeem-coupon").addEventListener("click", () => {
+      if (redeemed) return;
+      redeemed = true;
+      renderCoupon();
+      saveCoupon();
+      celebrate($("redeem-coupon"));
+    });
+
+    $("new-compliment").addEventListener("click", () => {
+      $("new-compliment").disabled = true;
+      $("compliment").classList.add("changing");
+      setTimeout(() => {
+        complimentIndex = differentIndex(compliments.length, complimentIndex);
+        $("compliment").textContent = compliments[complimentIndex];
+        $("compliment").classList.remove("changing");
+        $("new-compliment").disabled = false;
+      }, motionPreference.matches ? 0 : 180);
+    });
+
+    // Egyetlen időzítő: újraolvasáskor nem fut egymásra több gépelés.
+    let typingTimer;
+    let letterPosition = 0;
+    const letterCharacters = Array.from(loveLetter);
+    function finishLetter() {
+      clearTimeout(typingTimer);
+      $("letter-text").textContent = loveLetter;
+      $("letter-text").classList.remove("typing");
+      $("letter-status").textContent = "A levél elkészült, elolvashatod.";
+    }
+
+    function openLetter() {
+      clearTimeout(typingTimer);
+      $("letter-preview").hidden = true;
+      $("letter-body").hidden = false;
+      $("open-envelope").setAttribute("aria-expanded", "true");
+      $("letter-status").textContent = "A titkos levél kinyílt.";
+      $("letter-text").textContent = "";
+      letterPosition = 0;
+      if (motionPreference.matches) {
+        finishLetter();
+      } else {
+        $("letter-text").classList.add("typing");
+        function typeNext() {
+          if (letterPosition >= letterCharacters.length) {
+            finishLetter();
+            return;
+          }
+          const character = letterCharacters[letterPosition++];
+          $("letter-text").append(document.createTextNode(character));
+          typingTimer = setTimeout(typeNext, character === "\n" ? 160 : /[.!?]/.test(character) ? 180 : 22);
+        }
+        typeNext();
+      }
+      $("reread-letter").focus({ preventScroll: true });
+    }
+    $("open-envelope").addEventListener("click", openLetter);
+    $("open-letter").addEventListener("click", openLetter);
+    $("reread-letter").addEventListener("click", openLetter);
+
+    // A szív klasszikus parametrikus egyenlete; ugyanazt használják a részecskék is.
+    function traceHeart(context, x, y, size) {
+      context.beginPath();
+      for (let i = 0; i <= 100; i++) {
+        const t = i / 100 * Math.PI * 2;
+        const hx = 16 * Math.pow(Math.sin(t), 3);
+        const hy = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+        const px = x + hx * size / 32;
+        const py = y - hy * size / 32;
+        if (i === 0) context.moveTo(px, py);
+        else context.lineTo(px, py);
+      }
+      context.closePath();
+    }
+
+    const heartCanvas = $("heart-canvas");
+    const heartContext = heartCanvas.getContext("2d");
+    const celebrationCanvas = $("celebration");
+    const celebrationContext = celebrationCanvas.getContext("2d");
+    let heartWidth = 0;
+    let heartHeight = 0;
+    let heartFrame = 0;
+    let celebrationFrame = 0;
+    let particles = [];
+    let previousParticleTime = 0;
+    const particleColors = ["#ff8fa3", "#c97695", "#e5b58b", "#b7a0ca", "#ffb3c1"];
+
+    function sizeCanvas(canvas, context, width, height) {
+      const ratio = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+
+    function drawHeart(time) {
+      heartContext.clearRect(0, 0, heartWidth, heartHeight);
+      const pulse = motionPreference.matches ? 1 : 1 + Math.sin(time / 650) * .035;
+      const x = heartWidth / 2;
+      const y = heartHeight * .44;
+      const size = Math.min(heartWidth * .47, 158) * pulse;
+      heartContext.save();
+      traceHeart(heartContext, x, y, size * 1.2);
+      heartContext.strokeStyle = "#edbdc980";
+      heartContext.lineWidth = 1;
+      heartContext.stroke();
+      traceHeart(heartContext, x, y, size * 1.4);
+      heartContext.strokeStyle = "#edbdc945";
+      heartContext.stroke();
+      traceHeart(heartContext, x, y, size);
+      const gradient = heartContext.createLinearGradient(x - size / 2, y - size / 2, x + size / 2, y + size / 2);
+      gradient.addColorStop(0, "#f7a7ba");
+      gradient.addColorStop(.5, "#e77797");
+      gradient.addColorStop(1, "#bf4b73");
+      heartContext.fillStyle = gradient;
+      heartContext.shadowColor = "#cd628c50";
+      heartContext.shadowBlur = 25;
+      heartContext.shadowOffsetY = 10;
+      heartContext.fill();
+      heartContext.shadowBlur = 0;
+      heartContext.shadowOffsetY = 0;
+      heartContext.fillStyle = "#ffffff90";
+      traceHeart(heartContext, x - size * .17, y - size * .12, 15);
+      heartContext.fill();
+      heartContext.restore();
+      if (!motionPreference.matches && !document.hidden) heartFrame = requestAnimationFrame(drawHeart);
+    }
+
+    function restartHeart() {
+      cancelAnimationFrame(heartFrame);
+      if (!document.hidden) drawHeart(performance.now());
+    }
+    new ResizeObserver(() => {
+      const bounds = heartCanvas.getBoundingClientRect();
+      heartWidth = bounds.width;
+      heartHeight = bounds.height;
+      sizeCanvas(heartCanvas, heartContext, heartWidth, heartHeight);
+      restartHeart();
+    }).observe(heartCanvas);
+
+    function resizeCelebration() {
+      sizeCanvas(celebrationCanvas, celebrationContext, innerWidth, innerHeight);
+    }
+    addEventListener("resize", resizeCelebration);
+    resizeCelebration();
+
+    // Saját, függőségmentes konfetti. Az időalapú mozgás gyors kijelzőn is azonos.
+    function animateParticles(time) {
+      const delta = Math.min((time - previousParticleTime) / 1000, .04);
+      previousParticleTime = time;
+      celebrationContext.clearRect(0, 0, innerWidth, innerHeight);
+      particles = particles.filter((particle) => particle.life > 0);
+      for (const particle of particles) {
+        particle.life -= delta;
+        particle.x += particle.vx * delta;
+        particle.y += particle.vy * delta;
+        particle.vy += 270 * delta;
+        particle.angle += particle.spin * delta;
+        celebrationContext.save();
+        celebrationContext.translate(particle.x, particle.y);
+        celebrationContext.rotate(particle.angle);
+        celebrationContext.globalAlpha = Math.max(0, Math.min(1, particle.life));
+        celebrationContext.fillStyle = particle.color;
+        traceHeart(celebrationContext, 0, 0, particle.size);
+        celebrationContext.fill();
+        celebrationContext.restore();
+      }
+      if (particles.length) celebrationFrame = requestAnimationFrame(animateParticles);
+      else {
+        celebrationFrame = 0;
+        celebrationContext.clearRect(0, 0, innerWidth, innerHeight);
+      }
+    }
+
+    function celebrate(element) {
+      $("heart-status").textContent = "Sok-sok szeretet és egy nagy ölelés neked! ♡";
+      if (motionPreference.matches) return;
+      const bounds = element.getBoundingClientRect();
+      const x = bounds.left + bounds.width / 2;
+      const y = bounds.top + bounds.height / 2;
+      // A felső korlát sok gyors érintésnél is óvja a mobilos teljesítményt.
+      particles = particles.slice(-120);
+      for (let i = 0; i < 45; i++) {
+        const angle = Math.PI + Math.random() * Math.PI;
+        const speed = 100 + Math.random() * 260;
+        particles.push({
+          x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+          size: 7 + Math.random() * 11, color: particleColors[i % particleColors.length],
+          angle: Math.random() * 6, spin: Math.random() * 5 - 2.5, life: 1.4 + Math.random() * .8
+        });
+      }
+      if (!celebrationFrame) {
+        previousParticleTime = performance.now();
+        celebrationFrame = requestAnimationFrame(animateParticles);
+      }
+    }
+
+    function clearCelebration() {
+      cancelAnimationFrame(celebrationFrame);
+      celebrationFrame = 0;
+      particles = [];
+      celebrationContext.clearRect(0, 0, innerWidth, innerHeight);
+    }
+    $("heart-button").addEventListener("click", () => celebrate($("heart-button")));
+    document.addEventListener("visibilitychange", () => {
+      restartHeart();
+      if (document.hidden) clearCelebration();
+    });
+    motionPreference.addEventListener("change", () => {
+      restartHeart();
+      if (motionPreference.matches) {
+        clearCelebration();
+        if ($("letter-text").classList.contains("typing")) finishLetter();
+      }
+    });
+    restoreCoupon();
+    renderCoupon();
+  </script>
+  <span class="sr-only" id="heart-status" role="status"></span>
+</body>
+</html>
