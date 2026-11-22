@@ -19,7 +19,8 @@
     button, a { touch-action: manipulation; }
     .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
     .svg-library { position: absolute; width: 0; height: 0; overflow: hidden; }
-    .shell { width: min(1100px, calc(100% - 64px)); margin: auto; }
+    .shell { width: min(1100px, calc(100% - 64px)); margin: auto; position: relative; z-index: 1; pointer-events: none; }
+    header, .intro, .card, footer { pointer-events: auto; }
     header { display: flex; justify-content: space-between; align-items: center; padding: 30px 0; border-bottom: 1px solid var(--border); }
     .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -.5px; font-size: 19px; }
     .brand-mark { background: #f9dce2; color: #bd4b65; border-radius: 12px; width: 36px; height: 36px; display: grid; place-items: center; }
@@ -40,13 +41,38 @@
     .label { font-size: 10px; font-weight: 650; letter-spacing: 1.8px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
     .label .icon { width: 15px; height: 15px; }
     .pill { border: 1px solid #e9cbd1; border-radius: 30px; padding: 5px 9px; font-size: 9px; color: #ac6f7e; white-space: nowrap; }
-    .heart-card { background: radial-gradient(ellipse at 50% 50%, #ffe0e7, #fff0f3 70%); text-align: center; display: flex; flex-direction: column; }
+    .heart-card { background: radial-gradient(ellipse at 50% 50%, #ffe0e7, #fff0f3 70%); text-align: center; display: flex; flex-direction: column; transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transition: transform .18s ease-out; }
     .heart-card .card-top { text-align: left; }
-    .heart-stage { width: 100%; height: 214px; position: relative; border: 0; padding: 0; background: transparent; border-radius: 18px; margin: 7px 0 0; }
+    .heart-stage { width: 100%; height: 214px; position: relative; border: 0; padding: 0; background: transparent; border-radius: 18px; margin: 7px 0 0; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+    .heart-art { position: absolute; inset: 0; pointer-events: none; transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); transition: transform .18s ease-out; }
     .heart-stage canvas { width: 100%; height: 100%; display: block; pointer-events: none; }
-    .heart-stage::after { content: "koppints a szívre"; position: absolute; left: 0; right: 0; bottom: 2px; font-size: 10px; color: #b47c89; letter-spacing: .4px; }
+    .heart-stage canvas { transform-origin: 50% 44%; }
+    .heart-stage::after { content: "koppints · vagy tartsd nyomva 2,5 másodpercig"; position: absolute; left: 0; right: 0; bottom: 2px; font-size: 10px; color: #b47c89; letter-spacing: .2px; }
     .heart-card h2 { font-size: 29px; letter-spacing: -.8px; margin: 15px 0 6px; }
     .heart-card p { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+    .charge-meter { width: min(240px, 100%); margin: 8px auto 0; }
+    .charge-label { display: block; font-size: 11px; color: #aa5973; margin-bottom: 5px; }
+    .charge-meter progress { width: 100%; height: 7px; display: block; border: 0; border-radius: 20px; overflow: hidden; background: #f3ccd7; accent-color: #d66388; }
+    progress::-webkit-progress-bar { background: #f3ccd7; border-radius: 20px; }
+    progress::-webkit-progress-value { background: linear-gradient(90deg, #ffabc3, #ce577e); border-radius: 20px; }
+    progress::-moz-progress-bar { background: #d66388; border-radius: 20px; }
+    .heart-card .love-message { margin: 12px 0 0; padding: 11px; border-radius: 14px; background: #fffaf3; border: 1px solid #eac49e; color: #9d4263; line-height: 1.6; }
+    .heart-card .kiss-counter { margin: 12px 0 0; color: #a26277; font-size: 11px; }
+    .kiss-counter strong { font-variant-numeric: tabular-nums; color: #b8496d; }
+    .heart-card .storage-note { margin-top: 10px; color: #93422d; }
+    .background-hearts { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .background-hearts:focus-within { z-index: 3; }
+    .floating-heart { position: absolute; bottom: -60px; left: var(--left); width: 44px; height: 44px; border: 0; border-radius: 50%; padding: 10px; background: none; color: var(--color); pointer-events: auto; opacity: 0; animation: float-up var(--duration) var(--delay) linear infinite; }
+    .floating-heart .icon { width: 100%; height: 100%; fill: currentColor; stroke: none; }
+    .floating-heart:hover, .floating-heart:focus-visible { background: #fff0f3b3; }
+    .floating-heart.popped { visibility: hidden; animation-play-state: paused; }
+    .effects-paused .floating-heart { animation-play-state: paused; }
+    @keyframes float-up {
+      0% { transform: translate3d(0, 0, 0) rotate(-15deg); opacity: 0; }
+      12%, 80% { opacity: .35; }
+      50% { transform: translate3d(var(--drift), -50vh, 0) rotate(12deg); }
+      100% { transform: translate3d(0, calc(-100vh - 120px), 0) rotate(-10deg); opacity: 0; }
+    }
     .coupon-card { background: #fbf2e8; }
     .coupon-card .label { color: #997354; }
     .coupon-card .pill { color: #a98463; border-color: #e4d2bd; }
@@ -127,6 +153,8 @@
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .background-hearts { display: none; }
+      .heart-card, .heart-art { transform: none !important; }
     }
   </style>
 </head>
@@ -143,6 +171,7 @@
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
     <symbol id="i-cup" viewBox="0 0 24 24"><path d="M4 8h12v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Zm12 1h2a3 3 0 0 1 0 6h-2M7 3v2m4-2v2m4-2v2"/></symbol>
   </svg>
+  <div class="background-hearts" id="background-hearts" aria-label="Pukkantható háttérszívek"></div>
   <div class="shell">
     <header>
       <div class="brand"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg></span>csak neked<span style="color:#c47d90">.</span></div>
@@ -157,16 +186,23 @@
         <svg class="icon intro-spark right" aria-hidden="true"><use href="#i-spark"/></svg>
       </section>
       <div class="grid">
-        <section class="card heart-card" aria-labelledby="heart-title">
+        <section class="card heart-card" id="heart-card" aria-labelledby="heart-title">
           <div class="card-top">
             <span class="label"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg>Egy szív, ami érted dobog</span>
             <span class="pill">mindig ♡</span>
           </div>
-          <button class="heart-stage" id="heart-button" aria-label="Küldök egy szívrobbanást">
-            <canvas id="heart-canvas" aria-hidden="true"></canvas>
+          <button class="heart-stage" id="heart-button" aria-label="Puszi küldése. Tartsd nyomva 2,5 másodpercig a szeretetmérő feltöltéséhez." aria-describedby="heart-help">
+            <span class="heart-art"><canvas id="heart-canvas" aria-hidden="true"></canvas></span>
           </button>
+          <div class="charge-meter" id="charge-meter" hidden>
+            <label class="charge-label" for="love-charge">Töltődés: <span id="charge-percent">0</span>%</label>
+            <progress id="love-charge" max="100" value="0">0%</progress>
+          </div>
           <h2 id="heart-title">Nagyon szeretlek! <span style="color:#dc6884">♡</span></h2>
-          <p>Egy koppintás. Ezer apró szívdobbanás.</p>
+          <p id="heart-help">Egy koppintás, egy puszi. Egy hosszú érintés, végtelen szeretet.<span class="sr-only">Billentyűzettel az Enter vagy a Szóköz nyomva tartásával is feltöltheted.</span></p>
+          <p class="love-message" id="love-message" role="status" hidden>A szeretetem irántad: <strong>Végtelen % ❤️</strong></p>
+          <p class="kiss-counter" title="A számláló ebben a böngészőben mentődik." aria-live="polite" aria-atomic="true">Küldött puszik: <strong id="kiss-count">0</strong> 💋</p>
+          <p class="storage-note" id="kiss-storage-note" role="status" hidden></p>
         </section>
         <section class="card coupon-card" aria-labelledby="coupon-heading">
           <div class="card-top">
@@ -232,6 +268,7 @@
     <footer><span>Szeretettel készült. Neked. <svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg></span><span class="footer-note">Bárhol is vagy, itt egy kicsit mindig együtt vagyunk.</span></footer>
   </div>
   <canvas id="celebration" aria-hidden="true"></canvas>
+  <span class="sr-only" id="heart-status" role="status"></span>
   <noscript><p style="text-align:center;padding:20px">Az interaktív meglepetésekhez engedélyezd a JavaScriptet a böngészőben. Nagyon szeretlek! ♡</p></noscript>
   <script>
     "use strict";
@@ -284,10 +321,10 @@ Aki ezt mind neked készítette ♡`;
       return index >= previous ? index + 1 : index;
     }
 
-    function reportStorageError(error) {
-      console.warn("A kupon helyi mentése nem érhető el:", error);
-      $("storage-note").textContent = "A böngésző nem tudja menteni a kupont. Itt továbbra is működik minden, de újranyitáskor a kupon nem marad meg.";
-      $("storage-note").hidden = false;
+    function reportStorageError(error, noteId = "storage-note", subject = "kupont") {
+      console.warn("A helyi mentés nem érhető el:", error);
+      $(noteId).textContent = `A böngésző nem tudja menteni a ${subject}. Itt továbbra is működik minden, de újranyitáskor ez az állapot nem marad meg.`;
+      $(noteId).hidden = false;
     }
 
     function restoreCoupon() {
@@ -397,13 +434,16 @@ Aki ezt mind neked készítette ♡`;
     $("open-letter").addEventListener("click", openLetter);
     $("reread-letter").addEventListener("click", openLetter);
 
-    // A szív klasszikus parametrikus egyenlete; ugyanazt használják a részecskék is.
+    // A parametrikus szív pontjait egyszer számoljuk ki, nem minden részecske minden képkockáján.
+    const heartPoints = Array.from({ length: 101 }, (_, i) => {
+      const t = i / 100 * Math.PI * 2;
+      return [16 * Math.pow(Math.sin(t), 3),
+        13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)];
+    });
     function traceHeart(context, x, y, size) {
       context.beginPath();
-      for (let i = 0; i <= 100; i++) {
-        const t = i / 100 * Math.PI * 2;
-        const hx = 16 * Math.pow(Math.sin(t), 3);
-        const hy = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+      for (let i = 0; i < heartPoints.length; i++) {
+        const [hx, hy] = heartPoints[i];
         const px = x + hx * size / 32;
         const py = y - hy * size / 32;
         if (i === 0) context.moveTo(px, py);
@@ -413,6 +453,8 @@ Aki ezt mind neked készítette ♡`;
     }
 
     const heartCanvas = $("heart-canvas");
+    const heartButton = $("heart-button");
+    const heartCard = $("heart-card");
     const heartContext = heartCanvas.getContext("2d");
     const celebrationCanvas = $("celebration");
     const celebrationContext = celebrationCanvas.getContext("2d");
@@ -422,7 +464,75 @@ Aki ezt mind neked készítette ♡`;
     let celebrationFrame = 0;
     let particles = [];
     let previousParticleTime = 0;
-    const particleColors = ["#ff8fa3", "#c97695", "#e5b58b", "#b7a0ca", "#ffb3c1"];
+    let heartPhase = 0;
+    let previousHeartTime = 0;
+    let bounceAnimation;
+    let chargeFrame = 0;
+    let chargeStarted = 0;
+    let chargeProgress = 0;
+    let chargeCompleted = false;
+    let holdSource = null;
+    let activePointerId = null;
+    let heldKey = null;
+    let chargeOrigin = { x: 0, y: 0 };
+    const chargeDuration = 2500;
+    const kissStorageKey = "csak-neked.kisses.v1";
+    const particleColors = ["#ff8fa3", "#d76a91", "#dfb05b", "#f4cf83", "#ffb3c1"];
+    let kissCount = 0;
+
+    function restoreKisses() {
+      try {
+        const raw = localStorage.getItem(kissStorageKey);
+        if (raw !== null) {
+          const saved = JSON.parse(raw);
+          if (!Number.isSafeInteger(saved) || saved < 0) throw new Error("Érvénytelen mentett pusziszámláló.");
+          kissCount = saved;
+        }
+      } catch (error) {
+        reportStorageError(error, "kiss-storage-note", "pusziszámlálót");
+      }
+      $("kiss-count").textContent = kissCount.toLocaleString("hu-HU");
+    }
+
+    function centerOf(element) {
+      const bounds = element.getBoundingClientRect();
+      return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+    }
+
+    function hapticHeartbeat() {
+      if (typeof navigator.vibrate === "function") navigator.vibrate([50, 70, 50]);
+    }
+
+    function bounceHeart() {
+      if (motionPreference.matches) return;
+      if (bounceAnimation) bounceAnimation.cancel();
+      bounceAnimation = heartCanvas.animate([
+        { transform: "scale(1)" },
+        { transform: "scale(.92)", offset: .12 },
+        { transform: "scale(1.16, 1.12)", offset: .32 },
+        { transform: "scale(.98, 1.02)", offset: .57 },
+        { transform: "scale(1.04)", offset: .77 },
+        { transform: "scale(1)" }
+      ], { duration: 650, easing: "ease-in-out" });
+    }
+
+    function sendKiss(origin, vibrate = false) {
+      if (kissCount >= Number.MAX_SAFE_INTEGER) {
+        reportStorageError(new Error("A pusziszámláló elérte a pontosan tárolható maximumot."), "kiss-storage-note", "pusziszámlálót");
+        return;
+      }
+      kissCount++;
+      $("kiss-count").textContent = kissCount.toLocaleString("hu-HU");
+      try {
+        localStorage.setItem(kissStorageKey, JSON.stringify(kissCount));
+      } catch (error) {
+        reportStorageError(error, "kiss-storage-note", "pusziszámlálót");
+      }
+      if (vibrate) hapticHeartbeat();
+      bounceHeart();
+      emitBurst(origin.x, origin.y, 15 + Math.floor(Math.random() * 11));
+      $("heart-status").textContent = `Egy puszi neked! Már ${kissCount} puszit küldtem. ♡`;
+    }
 
     function sizeCanvas(canvas, context, width, height) {
       const ratio = Math.min(devicePixelRatio || 1, 2);
@@ -433,10 +543,13 @@ Aki ezt mind neked készítette ♡`;
 
     function drawHeart(time) {
       heartContext.clearRect(0, 0, heartWidth, heartHeight);
-      const pulse = motionPreference.matches ? 1 : 1 + Math.sin(time / 650) * .035;
+      const delta = previousHeartTime ? Math.min((time - previousHeartTime) / 1000, .05) : 0;
+      previousHeartTime = time;
+      heartPhase += delta * (2.8 + chargeProgress * 9);
+      const pulse = motionPreference.matches ? 1 : 1 + Math.sin(heartPhase) * (.035 + chargeProgress * .035);
       const x = heartWidth / 2;
       const y = heartHeight * .44;
-      const size = Math.min(heartWidth * .47, 158) * pulse;
+      const size = Math.min(heartWidth * .47, 158) * pulse * (1 + chargeProgress * .08);
       heartContext.save();
       traceHeart(heartContext, x, y, size * 1.2);
       heartContext.strokeStyle = "#edbdc980";
@@ -451,8 +564,8 @@ Aki ezt mind neked készítette ♡`;
       gradient.addColorStop(.5, "#e77797");
       gradient.addColorStop(1, "#bf4b73");
       heartContext.fillStyle = gradient;
-      heartContext.shadowColor = "#cd628c50";
-      heartContext.shadowBlur = 25;
+      heartContext.shadowColor = `rgba(224, 74, 131, ${.3 + chargeProgress * .5})`;
+      heartContext.shadowBlur = 25 + chargeProgress * 45;
       heartContext.shadowOffsetY = 10;
       heartContext.fill();
       heartContext.shadowBlur = 0;
@@ -466,12 +579,13 @@ Aki ezt mind neked készítette ♡`;
 
     function restartHeart() {
       cancelAnimationFrame(heartFrame);
+      previousHeartTime = 0;
       if (!document.hidden) drawHeart(performance.now());
     }
     new ResizeObserver(() => {
-      const bounds = heartCanvas.getBoundingClientRect();
-      heartWidth = bounds.width;
-      heartHeight = bounds.height;
+      // A CSS-dobbanás/parallax nem módosíthatja a canvas valódi felbontását.
+      heartWidth = heartButton.clientWidth;
+      heartHeight = heartButton.clientHeight;
       sizeCanvas(heartCanvas, heartContext, heartWidth, heartHeight);
       restartHeart();
     }).observe(heartCanvas);
@@ -482,7 +596,7 @@ Aki ezt mind neked készítette ♡`;
     addEventListener("resize", resizeCelebration);
     resizeCelebration();
 
-    // Saját, függőségmentes konfetti. Az időalapú mozgás gyors kijelzőn is azonos.
+    // Saját, függőségmentes konfetti: gravitáció, légellenállás és élettartam szerinti halványulás.
     function animateParticles(time) {
       const delta = Math.min((time - previousParticleTime) / 1000, .04);
       previousParticleTime = time;
@@ -492,14 +606,29 @@ Aki ezt mind neked készítette ♡`;
         particle.life -= delta;
         particle.x += particle.vx * delta;
         particle.y += particle.vy * delta;
+        particle.vx *= Math.exp(-.6 * delta);
         particle.vy += 270 * delta;
         particle.angle += particle.spin * delta;
         celebrationContext.save();
         celebrationContext.translate(particle.x, particle.y);
         celebrationContext.rotate(particle.angle);
-        celebrationContext.globalAlpha = Math.max(0, Math.min(1, particle.life));
+        celebrationContext.globalAlpha = Math.max(0, Math.min(1, particle.life / .9));
         celebrationContext.fillStyle = particle.color;
-        traceHeart(celebrationContext, 0, 0, particle.size);
+        if (particle.shape === "heart") {
+          traceHeart(celebrationContext, 0, 0, particle.size);
+        } else if (particle.shape === "spark") {
+          const r = particle.size / 2;
+          celebrationContext.beginPath();
+          celebrationContext.moveTo(0, -r);
+          for (const [x, y] of [[r * .25, -r * .25], [r, 0], [r * .25, r * .25],
+            [0, r], [-r * .25, r * .25], [-r, 0], [-r * .25, -r * .25]]) {
+            celebrationContext.lineTo(x, y);
+          }
+          celebrationContext.closePath();
+        } else {
+          celebrationContext.beginPath();
+          celebrationContext.rect(-particle.size / 2, -particle.size / 4, particle.size, particle.size / 2);
+        }
         celebrationContext.fill();
         celebrationContext.restore();
       }
@@ -510,26 +639,182 @@ Aki ezt mind neked készítette ♡`;
       }
     }
 
-    function celebrate(element) {
-      $("heart-status").textContent = "Sok-sok szeretet és egy nagy ölelés neked! ♡";
+    function emitBurst(x, y, count, large = false, rain = false) {
       if (motionPreference.matches) return;
-      const bounds = element.getBoundingClientRect();
-      const x = bounds.left + bounds.width / 2;
-      const y = bounds.top + bounds.height / 2;
-      // A felső korlát sok gyors érintésnél is óvja a mobilos teljesítményt.
-      particles = particles.slice(-120);
-      for (let i = 0; i < 45; i++) {
+      // A teljes részecskeszám gyors érintéseknél és nagy robbanásnál is legfeljebb 280.
+      particles.splice(0, Math.max(0, particles.length + count - 280));
+      for (let i = 0; i < count; i++) {
         const angle = Math.PI + Math.random() * Math.PI;
-        const speed = 100 + Math.random() * 260;
+        const speed = 100 + Math.random() * (large ? 520 : 210);
         particles.push({
-          x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+          x: rain ? Math.random() * innerWidth : x, y: rain ? -20 - Math.random() * 120 : y,
+          vx: rain ? Math.random() * 80 - 40 : Math.cos(angle) * speed,
+          vy: rain ? 40 + Math.random() * 70 : Math.sin(angle) * speed,
           size: 7 + Math.random() * 11, color: particleColors[i % particleColors.length],
-          angle: Math.random() * 6, spin: Math.random() * 5 - 2.5, life: 1.4 + Math.random() * .8
+          shape: i % 3 === 0 ? "spark" : large && i % 3 === 1 ? "confetti" : "heart",
+          angle: Math.random() * 6, spin: Math.random() * 5 - 2.5,
+          life: (large ? 2.6 : 1.4) + Math.random() * .8
         });
       }
       if (!celebrationFrame) {
         previousParticleTime = performance.now();
         celebrationFrame = requestAnimationFrame(animateParticles);
+      }
+    }
+
+    function celebrate(element) {
+      $("heart-status").textContent = "Sok-sok szeretet és egy nagy ölelés neked! ♡";
+      const { x, y } = centerOf(element);
+      emitBurst(x, y, 45);
+    }
+
+    function completeCharge() {
+      chargeCompleted = true;
+      $("love-message").hidden = false;
+      bounceHeart();
+      emitBurst(chargeOrigin.x, chargeOrigin.y, 180, true);
+      emitBurst(0, 0, 100, true, true);
+    }
+
+    function updateCharge(time) {
+      chargeProgress = Math.min(1, (time - chargeStarted) / chargeDuration);
+      const percent = Math.floor(chargeProgress * 100);
+      $("charge-percent").textContent = percent;
+      $("love-charge").value = percent;
+      $("love-charge").textContent = `${percent}%`;
+      if (chargeProgress === 1) {
+        if (!chargeCompleted) completeCharge();
+        chargeFrame = 0;
+      } else {
+        chargeFrame = requestAnimationFrame(updateCharge);
+      }
+    }
+
+    function startCharge(source, origin) {
+      holdSource = source;
+      chargeOrigin = origin;
+      chargeStarted = performance.now();
+      chargeProgress = 0;
+      chargeCompleted = false;
+      $("love-message").hidden = true;
+      $("charge-meter").hidden = false;
+      updateCharge(chargeStarted);
+    }
+
+    function stopCharge(cancelled = false) {
+      if (!holdSource) return;
+      // A felengedés elérheti a küszöböt két képkocka között is.
+      if (!cancelled && !chargeCompleted && performance.now() - chargeStarted >= chargeDuration) {
+        cancelAnimationFrame(chargeFrame);
+        updateCharge(performance.now());
+      }
+      cancelAnimationFrame(chargeFrame);
+      chargeFrame = 0;
+      holdSource = null;
+      chargeProgress = 0;
+      if (!chargeCompleted) $("charge-meter").hidden = true;
+      if (motionPreference.matches) restartHeart();
+    }
+
+    // A Pointer Events közösen kezeli az egeret, érintést és tollat, duplázott touch/click nélkül.
+    heartButton.addEventListener("pointerdown", (event) => {
+      if (!event.isPrimary || event.button !== 0 || holdSource) return;
+      activePointerId = event.pointerId;
+      heartButton.setPointerCapture(event.pointerId);
+      hapticHeartbeat();
+      bounceHeart();
+      startCharge("pointer", { x: event.clientX, y: event.clientY });
+    });
+    heartButton.addEventListener("pointerup", (event) => {
+      if (event.pointerId !== activePointerId) return;
+      activePointerId = null;
+      stopCharge();
+    });
+    function cancelHold() {
+      const pointerId = activePointerId;
+      activePointerId = null;
+      heldKey = null;
+      stopCharge(true);
+      if (pointerId !== null && heartButton.hasPointerCapture(pointerId)) heartButton.releasePointerCapture(pointerId);
+      resetParallax();
+    }
+    heartButton.addEventListener("pointercancel", (event) => {
+      if (event.pointerId === activePointerId) cancelHold();
+    });
+    heartButton.addEventListener("lostpointercapture", (event) => {
+      if (event.pointerId === activePointerId) cancelHold();
+    });
+    heartButton.addEventListener("contextmenu", (event) => event.preventDefault());
+    heartButton.addEventListener("click", (event) => {
+      const keyboard = event.detail === 0;
+      sendKiss(keyboard ? centerOf(heartButton) : { x: event.clientX, y: event.clientY }, keyboard);
+    });
+    heartButton.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        cancelHold();
+        return;
+      }
+      if (event.key !== " " && event.key !== "Enter") return;
+      event.preventDefault();
+      if (event.repeat || holdSource) return;
+      heldKey = event.key;
+      hapticHeartbeat();
+      bounceHeart();
+      startCharge("keyboard", centerOf(heartButton));
+    });
+    heartButton.addEventListener("keyup", (event) => {
+      if (event.key !== " " && event.key !== "Enter") return;
+      event.preventDefault();
+      if (event.key !== heldKey || holdSource !== "keyboard") return;
+      heldKey = null;
+      stopCharge();
+      sendKiss(centerOf(heartButton));
+    });
+    heartButton.addEventListener("blur", cancelHold);
+    addEventListener("blur", cancelHold);
+    addEventListener("scroll", () => { if (holdSource) cancelHold(); resetParallax(); }, { passive: true });
+
+    function resetParallax() {
+      heartCard.style.setProperty("--tilt-x", "0deg");
+      heartCard.style.setProperty("--tilt-y", "0deg");
+    }
+    heartCard.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "mouse" || motionPreference.matches) return;
+      const bounds = heartCard.getBoundingClientRect();
+      const x = Math.max(-1, Math.min(1, (event.clientX - bounds.left) / bounds.width * 2 - 1));
+      const y = Math.max(-1, Math.min(1, (event.clientY - bounds.top) / bounds.height * 2 - 1));
+      heartCard.style.setProperty("--tilt-x", `${-y * 4}deg`);
+      heartCard.style.setProperty("--tilt-y", `${x * 4}deg`);
+    });
+    heartCard.addEventListener("pointerleave", resetParallax);
+
+    // Fix számú, újrahasznált háttérelem: nem gyűlnek korlátlanul DOM-csomópontok.
+    function createBackgroundHearts() {
+      for (let i = 0; i < 12; i++) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "floating-heart";
+        button.setAttribute("aria-label", "Lebegő szív pukkantása");
+        button.style.setProperty("--left", `${3 + i / 12 * 90}%`);
+        button.style.setProperty("--drift", `${Math.random() * 32 - 16}px`);
+        button.style.setProperty("--duration", `${18 + Math.random() * 14}s`);
+        button.style.setProperty("--delay", `${-Math.random() * 30}s`);
+        button.style.setProperty("--color", particleColors[i % particleColors.length]);
+        button.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg>';
+        button.addEventListener("click", (event) => {
+          const origin = event.detail === 0 ? centerOf(button) : { x: event.clientX, y: event.clientY };
+          emitBurst(origin.x, origin.y, 15 + Math.floor(Math.random() * 11));
+          $("heart-status").textContent = "Pukk! Egy kis háttérszív tele szeretettel. ♡";
+          button.classList.add("popped");
+          if (document.activeElement === button) heartButton.focus({ preventScroll: true });
+          setTimeout(() => {
+            button.style.setProperty("--delay", "0s");
+            button.style.animation = "none";
+            button.classList.remove("popped");
+            requestAnimationFrame(() => { button.style.animation = ""; });
+          }, 900);
+        });
+        $("background-hearts").append(button);
       }
     }
 
@@ -539,21 +824,33 @@ Aki ezt mind neked készítette ♡`;
       particles = [];
       celebrationContext.clearRect(0, 0, innerWidth, innerHeight);
     }
-    $("heart-button").addEventListener("click", () => celebrate($("heart-button")));
     document.addEventListener("visibilitychange", () => {
+      document.body.classList.toggle("effects-paused", document.hidden);
+      if (document.hidden) {
+        cancelHold();
+        clearCelebration();
+      }
       restartHeart();
-      if (document.hidden) clearCelebration();
     });
     motionPreference.addEventListener("change", () => {
       restartHeart();
       if (motionPreference.matches) {
+        resetParallax();
+        if (bounceAnimation) bounceAnimation.cancel();
         clearCelebration();
         if ($("letter-text").classList.contains("typing")) finishLetter();
       }
     });
     restoreCoupon();
     renderCoupon();
+    restoreKisses();
+    createBackgroundHearts();
+    addEventListener("storage", (event) => {
+      if (event.key === kissStorageKey || event.key === null) {
+        kissCount = 0;
+        restoreKisses();
+      }
+    });
   </script>
-  <span class="sr-only" id="heart-status" role="status"></span>
 </body>
 </html>
